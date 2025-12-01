@@ -28,6 +28,8 @@ interface TimelineEventProps {
 
 export default function TimelineEvent({ event, index, nextEvent, previousEvent }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const isEven = index % 2 === 0;
 
   // Parse multiple categories (separated by comma or slash)
@@ -157,42 +159,6 @@ export default function TimelineEvent({ event, index, nextEvent, previousEvent }
               )}
             </div>
           )}
-          {event.media && (() => {
-            // Check if media is likely an image URL
-            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
-            const isImageUrl = imageExtensions.some(ext =>
-              event.media?.toLowerCase().includes(ext)
-            );
-
-            if (isImageUrl) {
-              return (
-                <div className="mt-4 rounded-lg overflow-hidden">
-                  <Image
-                    src={event.media}
-                    alt={event.title}
-                    width={400}
-                    height={300}
-                    className="w-full h-auto object-cover"
-                  />
-                </div>
-              );
-            } else {
-              // Render as a clickable link
-              return (
-                <div className="mt-3 text-xs text-gray-500">
-                  <span className="font-semibold">Media: </span>
-                  <a
-                    href={event.media}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:text-blue-600"
-                  >
-                    {event.mediaText || event.media}
-                  </a>
-                </div>
-              );
-            }
-          })()}
         </div>
       </div>
 
@@ -214,8 +180,116 @@ export default function TimelineEvent({ event, index, nextEvent, previousEvent }
         <div className="w-0.5 bg-gray-300 flex-1 absolute top-5" style={{ left: 'calc(50% - 0.5px)', bottom: `-${spacing}px` }} />
       </div>
 
-      {/* Empty Side for Balance */}
-      <div className="flex-1" />
+      {/* Media Side (or Empty for Balance) */}
+      <div className="flex-1">
+        {event.photo && (
+          imageError ? (
+            <div className="mt-1 rounded-lg max-w-xl border-2 border-dashed border-gray-400 shadow-sm bg-gray-50 p-8 flex items-center justify-center" style={{ width: '400px', height: '300px' }}>
+              <div className="text-center text-gray-400">
+                <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm">Image unavailable</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-1 rounded-lg overflow-hidden max-w-xl inline-block border border-gray-300 shadow-sm">
+              <Image
+                src={event.photo}
+                alt={event.title}
+                width={400}
+                height={300}
+                className="w-full h-auto object-cover"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          )
+        )}
+        {event.video && (() => {
+          // If video error, show placeholder
+          if (videoError) {
+            return (
+              <div className="mt-1 rounded-lg max-w-xl border-2 border-dashed border-gray-400 shadow-sm bg-gray-50 p-8 flex items-center justify-center" style={{ width: '400px', height: '225px' }}>
+                <div className="text-center text-gray-400">
+                  <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm">Video unavailable</p>
+                </div>
+              </div>
+            );
+          }
+
+          // Extract video ID and platform
+          const videoUrl = event.video;
+          let embedUrl: string | null = null;
+          let isDirectVideo = false;
+
+          // Check for YouTube
+          const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+          if (youtubeMatch) {
+            embedUrl = `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+          }
+
+          // Check for Vimeo
+          const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+          if (vimeoMatch) {
+            embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+          }
+
+          // Check for direct video files
+          const videoExtensions = ['.mp4', '.webm', '.ogg'];
+          if (videoExtensions.some(ext => videoUrl.toLowerCase().includes(ext))) {
+            isDirectVideo = true;
+          }
+
+          if (embedUrl) {
+            // Embed YouTube or Vimeo
+            return (
+              <div className="mt-1 rounded-lg overflow-hidden max-w-xl inline-block border border-gray-300 shadow-sm">
+                <iframe
+                  src={embedUrl}
+                  width="400"
+                  height="225"
+                  style={{ border: 0 }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-auto aspect-video"
+                  onError={() => setVideoError(true)}
+                />
+              </div>
+            );
+          } else if (isDirectVideo) {
+            // Embed direct video file
+            return (
+              <div className="mt-1 rounded-lg overflow-hidden max-w-xl inline-block border border-gray-300 shadow-sm">
+                <video
+                  src={videoUrl}
+                  controls
+                  width="400"
+                  height="225"
+                  className="w-full h-auto"
+                  onError={() => setVideoError(true)}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            );
+          } else {
+            // Unsupported video format - show placeholder
+            return (
+              <div className="mt-1 rounded-lg max-w-xl border-2 border-dashed border-gray-400 shadow-sm bg-gray-50 p-8 flex items-center justify-center" style={{ width: '400px', height: '225px' }}>
+                <div className="text-center text-gray-400">
+                  <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm">Video unavailable</p>
+                </div>
+              </div>
+            );
+          }
+        })()}
+      </div>
     </div>
   );
 }

@@ -83,20 +83,8 @@ export default function Timeline() {
 
 	return (
 		<div className="min-h-screen bg-white">
-			{/* Header */}
-			<div className="text-center py-16 px-4">
-				<h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-					{timelineData.title}
-				</h1>
-				{timelineData.description && (
-					<p className="text-xl text-gray-600 max-w-2xl mx-auto">
-						{timelineData.description}
-					</p>
-				)}
-			</div>
-
 			{/* Timeline */}
-			<div className="max-w-6xl mx-auto px-4 pb-20">
+			<div className="max-w-6xl mx-auto px-4 py-20">
 				{timelineData.events.map((event, index) => (
 					<TimelineEvent
 						key={event.id}

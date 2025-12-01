@@ -8,8 +8,10 @@ export interface TimelineEvent {
   actors?: string;
   source?: string;
   sourceText?: string;
-  media?: string;
-  mediaText?: string;
+  photo?: string;
+  photoText?: string;
+  video?: string;
+  videoText?: string;
 }
 
 export interface TimelineData {

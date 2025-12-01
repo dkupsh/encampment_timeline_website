@@ -64,16 +64,16 @@ export async function GET() {
     const [valuesResponse, formulasResponse, spreadsheetResponse] = await Promise.all([
       sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
-        range: `${sheetName}!A:H`,
+        range: `${sheetName}!A:I`,
       }),
       sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
-        range: `${sheetName}!A:H`,
+        range: `${sheetName}!A:I`,
         valueRenderOption: 'FORMULA',
       }),
       sheets.spreadsheets.get({
         spreadsheetId: sheetId,
-        ranges: [`${sheetName}!A:H`],
+        ranges: [`${sheetName}!A:I`],
         includeGridData: true,
       }),
     ]);
@@ -90,7 +90,7 @@ export async function GET() {
     }
 
     // Skip header row and map to TimelineEvent objects
-    // Expected columns: DateTime | Approx | Title | Description | Category | Actor(s) | Source | Media (optional)
+    // Expected columns: DateTime | Approx | Title | Description | Category | Actor(s) | Source | Photo | Video
     // Filter out rows without a datetime
     const events: TimelineEvent[] = rows
       .slice(1)
@@ -101,7 +101,8 @@ export async function GET() {
         const gridRowIndex = originalIndex + 1; // +1 because we skip header
 
         const sourceData = extractUrlAndText(formulaRow?.[6], row[6], gridData, gridRowIndex, 6);
-        const mediaData = extractUrlAndText(formulaRow?.[7], row[7], gridData, gridRowIndex, 7);
+        const photoData = extractUrlAndText(formulaRow?.[7], row[7], gridData, gridRowIndex, 7);
+        const videoData = extractUrlAndText(formulaRow?.[8], row[8], gridData, gridRowIndex, 8);
 
         return {
           id: `event-${eventIndex}`,
@@ -113,8 +114,10 @@ export async function GET() {
           actors: row[5] || undefined,
           source: sourceData.url,
           sourceText: sourceData.text,
-          media: mediaData.url,
-          mediaText: mediaData.text,
+          photo: photoData.url,
+          photoText: photoData.text,
+          video: videoData.url,
+          videoText: videoData.text,
         };
       });
 
