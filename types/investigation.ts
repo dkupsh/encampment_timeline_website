@@ -21,6 +21,34 @@ export interface PhotoSubEvent {
   imagePath: string; // Path to image in public folder
   imageAlt?: string; // Alt text for accessibility
   caption?: string; // Optional caption for the photo
+  attribution?: string; // Optional photo credit/attribution (e.g., "Photo by Jane Doe")
+}
+
+export interface TweetSubEvent {
+  type: 'tweet';
+  author: string; // Display name
+  handle: string; // Twitter handle (e.g., "@username")
+  content: string; // Tweet text content
+  timestamp: string; // Tweet timestamp (e.g., "3:24 PM · Apr 25, 2024")
+  profileImage?: string; // URL to profile image
+  verified?: boolean; // Blue check badge
+  likes?: number; // Number of likes
+  retweets?: number; // Number of retweets
+  link?: string; // Link to original tweet
+}
+
+export interface TextMessage {
+  sender: string; // Sender name
+  content: string; // Message text
+  timestamp: string; // Message time (e.g., "3:24 PM")
+  isSender?: boolean; // If true, appears on right (sent), if false on left (received)
+}
+
+export interface TextMessagesSubEvent {
+  type: 'textMessages';
+  messages: TextMessage[]; // Array of text messages
+  caption?: string; // Optional caption for the conversation
+  conversationTitle?: string; // Optional title (e.g., "Group Chat")
 }
 
 export interface MapMarker {
@@ -55,7 +83,27 @@ export interface MapSubEvent {
   duration?: number; // Container height in viewport units (vh), default 150
 }
 
-export type SubEvent = TextSubEvent | PhotoSubEvent | MapSubEvent;
+export interface CollagePhoto {
+  imagePath: string; // Path to image in public folder
+  imageAlt?: string; // Alt text for accessibility
+  caption?: string; // Optional caption for individual photo
+  attribution?: string; // Optional photo credit/attribution (e.g., "Photo by Jane Doe")
+  appearAt?: number; // Scroll progress when it appears (0-1), auto-calculated if not provided
+  disappearAt?: number; // Scroll progress when it disappears (0-1), defaults to 1
+  size?: 'small' | 'medium' | 'large'; // Photo size (auto-assigned if not specified)
+  x?: number; // Percentage from left (0-100), auto-positioned if not specified
+  y?: number; // Percentage from top (0-100), auto-positioned if not specified
+}
+
+export interface CollageSubEvent {
+  type: 'collage';
+  photos: CollagePhoto[]; // Array of photos to display in collage
+  caption?: string; // Optional overall caption for the collage
+  duration?: number; // Container height in viewport units (vh), default 200
+  columns?: number; // [DEPRECATED] Use full-page mosaic layout instead
+}
+
+export type SubEvent = TextSubEvent | PhotoSubEvent | TweetSubEvent | TextMessagesSubEvent | MapSubEvent | CollageSubEvent;
 
 export interface TimelineEvent {
   id: string;

@@ -169,6 +169,29 @@ export const investigationData: InvestigationData = {
         { url: '/videos/day_one/timelapse/royce_east/compressed_2-public_royce_east.mp4', cropBlackBars: true },
         { url: '/videos/day_one/timelapse/powell_east/compressed_2-public_powell_east.mp4', cropBlackBars: true },
         { url: '/videos/day_one/timelapse/flagpole/compressed_2-public_flagpole.mp4', cropBlackBars: false },
+      ],
+      subEvents: [
+        {
+          type: 'collage',
+          photos: [
+            {
+              imagePath: '/images/start-collage/pse-image.jpeg',
+              imageAlt: 'Scene 1',
+              caption: 'Morning setup',
+              attribution: 'Photo by Reddot'
+            },
+            {
+              imagePath: '/images/start-collage/db-1.jpg',
+              imageAlt: 'Scene 2',
+              attribution: 'Photo by Jane Doe / Daily Bruin'
+            },
+            {
+              imagePath: '/images/start-collage/db-2.jpg',
+              imageAlt: 'Scene 2',
+              attribution: 'Photo by Jane Doe / Daily Bruin'
+            }
+          ],
+        },
       ]
     },
     {
